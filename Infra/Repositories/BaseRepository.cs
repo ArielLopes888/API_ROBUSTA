@@ -12,9 +12,9 @@ namespace Infra.Repositories
 {
     public class BaseRepository<T>:IBaseRepository<T> where T : Base
     {
-        private readonly ManagerContext _context;
+        private readonly ApiRobustaContext _context;
 
-        public BaseRepository(ManagerContext context)
+        public BaseRepository(ApiRobustaContext context)
         {
             _context = context;
         }
