@@ -70,7 +70,7 @@ namespace API.ROBUSTA
             #endregion
 
             #region Database
-            services.AddDbContext<ManagerContext>(options => options
+            services.AddDbContext<ApiRobustaContext>(options => options
                 .UseSqlServer(Configuration["ConnectionStrings:API.ROBUSTA"])
                 .EnableSensitiveDataLogging()
                 .UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole())),
