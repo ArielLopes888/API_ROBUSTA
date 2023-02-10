@@ -10,11 +10,11 @@ namespace Domain.Entities
 {
     public class User : Base
     {
-        public string Name { get; private set; }
-        public string Email { get; private set; }
-        public string Password { get; private set; }
+        public string Name { get;  set; }
+        public string Email { get;  set; }
+        public string Password { get;  set; }
 
-        protected User() { }
+        public User() { }
 
         public User(string name, string email, string password)
         {
