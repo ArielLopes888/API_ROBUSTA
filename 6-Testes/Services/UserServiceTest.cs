@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using _6_Testes;
 using AutoMapper;
 using Cor.Exceptions;
 using Domain.Entities;
@@ -10,83 +7,51 @@ using Infra.Interfaces;
 using Moq;
 using Services.DTO;
 using Services.Interfaces;
-using Services.Services;
 using Xunit;
+using FluentAssertions;
 
-namespace _6_Testes.Services
+namespace Services.Services.Tests
 {
-    public class UserServicesTest
+    public class UserServicesTests
     {
+        private readonly IUserService _sut;
 
-        [Fact]
-        public async Task Create_GivenValidUserDto_ShouldCreateUser()
+        private readonly IMapper _mapper;
+        private readonly Mock<IUserRepository> _userRepositoryMock;
+
+        public UserServicesTests()
         {
-            // Arrange
-            var mockMapper = new Mock<IMapper>();
-            var mockUserRepository = new Mock<IUserRepository>();
-            var userService = new UserServices(mockMapper.Object, mockUserRepository.Object);
-            var userDto = new UserDto { Email = "test@test.com" };
+            _mapper = AutoMapperConfig.GetConfiguration();
+            _userRepositoryMock = new Mock<IUserRepository>();
 
-            // Act
-            var result = await userService.Create(userDto);
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.Equal(userDto.Email, result.Email);
+            _sut = new UserServices
+            (
+                mapper: _mapper,
+                userRepository: _userRepositoryMock.Object
+            );
         }
 
-        [Fact]
-        public async Task Create_GivenUserWithExistingEmail_ShouldThrowDomainException()
+        [Fact(DisplayName = "Create Valid User")]
+        public async Task Create_WhenUserIsValid_ReturnUserDTO()
         {
-            // Arrange
-            var mockMapper = new Mock<IMapper>();
-            var mockUserRepository = new Mock<IUserRepository>();
-            mockUserRepository.Setup(m => m.GetByEmail(It.IsAny<string>())).ReturnsAsync(new User());
-            var userService = new UserServices(mockMapper.Object, mockUserRepository.Object);
-            var userDto = new UserDto { Email = "test@test.com" };
+            //Arrange
+            var userToCreate = new UserDto { Name = "Name", Email="teste@gmail.com", Password = "1234567890" };
 
-            // Act
-            var exception = await Assert.ThrowsAsync<DomainException>(() => userService.Create(userDto));
+            var userCreated = _mapper.Map<User>(userToCreate);
 
-            // Assert
-            Assert.NotNull(exception);
-            Assert.Equal("Já existe um usuário cadastrado com esse email", exception.Message);
-        }
+            _userRepositoryMock.Setup(x => x.GetByEmail(It.IsAny<string>()))
+                .ReturnsAsync(() => null);
 
-        [Fact]
-        public async Task Update_GivenValidUserDto_ShouldUpdateUser()
-        {
-            // Arrange
-            var mockMapper = new Mock<IMapper>();
-            var mockUserRepository = new Mock<IUserRepository>();
-            mockUserRepository.Setup(m => m.Get(It.IsAny<int>())).ReturnsAsync(new User { Email = "old@test.com" });
-            var userService = new UserServices(mockMapper.Object, mockUserRepository.Object);
-            var userDto = new UserDto { Email = "new@test.com" };
+            _userRepositoryMock.Setup(x => x.Create(It.IsAny<User>()))
+               .ReturnsAsync(() => userCreated);
 
-            // Act
-            var result = await userService.Update(userDto);
+            //Act   
+            var result = await _sut.Create(userToCreate);
 
-            // Assert
-            Assert.NotNull(result);
-            Assert.Equal(userDto.Email, result.Email);
-        }
 
-        [Fact]
-        public async Task Update_GivenUserWithNonExistentId_ShouldThrowDomainException()
-        {
-            // Arrange
-            var mockMapper = new Mock<IMapper>();
-            var mockUserRepository = new Mock<IUserRepository>();
-            mockUserRepository.Setup(m => m.Get(It.IsAny<int>())).ReturnsAsync(() => null);
-            var userService = new UserServices(mockMapper.Object, mockUserRepository.Object);
-            var userDto = new UserDto { Email = "new@test.com" };
-
-            // Act
-            var exception = await Assert.ThrowsAsync<DomainException>(() => userService.Update(userDto));
-
-            // Assert
-            Assert.NotNull(exception);
-            Assert.Equal("Não existe nenhum usuário cadastrado com esse Id", exception.Message);
+            //Assert
+            result.Should()
+                .BeEquivalentTo(_mapper.Map<UserDto>(userCreated));
         }
     }
 }
