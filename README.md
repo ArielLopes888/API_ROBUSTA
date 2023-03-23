@@ -3,8 +3,8 @@
   <img alt="Version" src="https://img.shields.io/badge/version-1-blue.svg?cacheSeconds=2592000" />
 </p>
 
-> Links [@Curso:](https://lnkd.in/eA_7JffM)
-        [@Minha API On-line:](https://lnkd.in/eHxm9NQg)
+> Link do [@Curso](https://lnkd.in/eA_7JffM) e da
+        [@Minha API On-line](https://lnkd.in/eHxm9NQg)
 
 ### 🏠 [Homepage]( )
 
